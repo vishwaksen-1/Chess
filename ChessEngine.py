@@ -14,7 +14,7 @@ class GameState():
             ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
             ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["--", "--", "--", "bB", "wB", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
@@ -102,8 +102,46 @@ class GameState():
     Get all the rook moves
     '''
     def getRookMoves(self, r, c, moves):
-        pass
-    
+        x = 'w'
+        if self.whiteToMove:
+            x = 'b'
+            
+        #up
+        if r > 0:
+            next_up = [r-1, c]
+            while next_up[0] >= 0 and self.board[next_up[0]][next_up[1]] == "--":
+                moves.append(Move((r, c),(next_up[0], next_up[1]), self.board))
+                next_up[0] -= 1
+            if next_up[0] >= 0 and self.board[next_up[0]][next_up[1]][0] == x:
+                moves.append(Move((r, c),(next_up[0], next_up[1]), self.board))
+        
+        #down
+        if r < 7:
+            next_down = [r+1, c]
+            while next_down[0] <= 7 and self.board[next_down[0]][next_down[1]] == "--":
+                moves.append(Move((r, c),(next_down[0], next_down[1]), self.board))
+                next_down[0] += 1
+            if next_down[0] <= 7 and self.board[next_down[0]][next_down[1]][0] == x:
+                moves.append(Move((r, c),(next_down[0], next_down[1]), self.board))
+        
+        #left
+        if c > 0:
+            next_left = [r, c-1]
+            while next_left[1] >= 0 and self.board[next_left[0]][next_left[1]] == "--":
+                moves.append(Move((r, c),(next_left[0], next_left[1]), self.board))
+                next_left[1] -= 1
+            if next_left[1] >= 0 and self.board[next_left[0]][next_left[1]][0] == x:
+                moves.append(Move((r, c),(next_left[0], next_left[1]), self.board))
+                
+        #right
+        if c < 7:
+            next_right = [r, c+1]
+            while next_right[1] <= 7 and self.board[next_right[0]][next_right[1]] == "--":
+                moves.append(Move((r, c),(next_right[0], next_right[1]), self.board))
+                next_right[1] += 1
+            if next_right[1] <= 7 and self.board[next_right[0]][next_right[1]][0] == x:
+                moves.append(Move((r, c),(next_right[0], next_right[1]), self.board))
+
     '''
     Get all the knight moves
     '''
@@ -114,7 +152,49 @@ class GameState():
     Get all the bishop moves
     '''
     def getBishopMoves(self, r, c, moves):
-        pass
+        x = 'w'
+        if self.whiteToMove:
+            x = 'b'
+            
+        #top-right -+
+        if r > 0 and c < 7:
+            next_step = [r-1, c+1]
+            while next_step[0] >= 0 and next_step[1] <= 7 and self.board[next_step[0]][next_step[1]] == "--":
+                moves.append(Move((r, c),(next_step[0], next_step[1]), self.board))
+                next_step[0] -= 1
+                next_step[1] += 1
+            if next_step[0] >= 0 and next_step[1] <= 7 and self.board[next_step[0]][next_step[1]][0] == x:
+                moves.append(Move((r, c),(next_step[0], next_step[1]), self.board))
+        
+        #top-left --
+        if r > 0 and c > 0:
+            next_step = [r-1, c-1]
+            while next_step[0] >= 0 and next_step[1] >= 0 and self.board[next_step[0]][next_step[1]] == "--":
+                moves.append(Move((r, c),(next_step[0], next_step[1]), self.board))
+                next_step[0] -= 1
+                next_step[1] -= 1
+            if next_step[0] >= 0 and next_step[1] >= 0 and self.board[next_step[0]][next_step[1]][0] == x:
+                moves.append(Move((r, c),(next_step[0], next_step[1]), self.board))
+        
+        #bottom-left +-
+        if r < 7 and c > 0:
+            next_step = [r+1, c-1]
+            while next_step[0] <= 7 and next_step[1] >= 0 and self.board[next_step[0]][next_step[1]] == "--":
+                moves.append(Move((r, c),(next_step[0], next_step[1]), self.board))
+                next_step[0] += 1
+                next_step[1] -= 1
+            if next_step[0] <= 7 and next_step[1] >= 0 and self.board[next_step[0]][next_step[1]][0] == x:
+                moves.append(Move((r, c),(next_step[0], next_step[1]), self.board))
+        
+        #bottom-right ++
+        if r < 7 and c < 7:
+            next_step = [r+1, c+1]
+            while next_step[0] <= 7 and next_step[1] <= 7 and self.board[next_step[0]][next_step[1]] == "--":
+                moves.append(Move((r, c),(next_step[0], next_step[1]), self.board))
+                next_step[0] += 1
+                next_step[1] += 1
+            if next_step[0] <= 7 and next_step[1] <= 7 and self.board[next_step[0]][next_step[1]][0] == x:
+                moves.append(Move((r, c),(next_step[0], next_step[1]), self.board))
     
     '''
     Get all the queen moves
