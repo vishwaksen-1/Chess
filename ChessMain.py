@@ -38,9 +38,11 @@ def main():
     running = True
     sqSelected = () #no square is selected, kepp track of last click of the user (tuple: (row, col))
     playerClicks = [] #keep track og player clicks (two tuples: [(6, 4), (4, 4)])
+    print("White"*gs.whiteToMove + "Black"*(not gs.whiteToMove))
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
+                print("Bye!")
                 running = False
             
             #mouse handlers
@@ -58,10 +60,11 @@ def main():
                 
                 if len(playerClicks) == 2: #after 2nd click
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
-                    print(move.getChessNotation())
+                    # print(move.getChessNotation())
                     if move in validMoves:
                         moveMade = True
                         gs.makeMove(move)
+                        print("White"*gs.whiteToMove + "Black"*(not gs.whiteToMove))
                     sqSelected = () #reset user clicks
                     playerClicks = []
                     
