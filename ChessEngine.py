@@ -25,7 +25,8 @@ class GameState():
         
         self.whiteToMove = True
         self.moveLog = []
-        
+        self.whiteKingLocation = (7, 4)
+        self.blackKingLocation = (0, 4)
         
     '''
     Takes a move as a parameter and executes it (this will not work for castling, pawn promotion, and en-passant)
@@ -35,6 +36,11 @@ class GameState():
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.moveLog.append(move) #log the move so we can undo it later or maybe show the game history later
         self.whiteToMove = not self.whiteToMove #swap players
+        #update the king's location if moved
+        if move.pieceMoved == 'wK':
+            self.whiteKingLocation = (move.endRow, move.endCol)
+        if move.pieceMoved == 'bK':
+            self.blackKingLocation = (move.endRow, move.endCol)            
         
     """
     Undo the last move made
@@ -45,12 +51,23 @@ class GameState():
             self.board[move.startRow][move.startCol] = move.pieceMoved
             self.board[move.endRow][move.endCol] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove #switch turns back
-        
+            #update the king's location if undo-ed
+            if move.pieceMoved == 'wK':
+                self.whiteKingLocation = (move.startRow, move.startCol)
+            if move.pieceMoved == 'bK':
+                self.blackKingLocation = (move.startRow, move.startCol)
     '''
     All moves considering checks
     '''
     def getValidMoves(self):
-        return self.getAllPossibleMoves()
+        # 1. lets generate all possible moves
+        moves = self.getAllPossibleMoves
+        # 2. for each move, make the move
+        
+        # 3. generate all opponent's moves
+        # 4. for each of your opponent's moves, see if they attack your king
+        # 5. if they do attack your king, not a valid move!
+        return moves
         
     '''
     All moves without considering checks
