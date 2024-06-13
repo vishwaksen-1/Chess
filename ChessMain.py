@@ -60,12 +60,12 @@ def main():
                 
                 if len(playerClicks) == 2: #after 2nd click
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board) 
-                    # print("Valid moves: ",len(validMoves), "To move: ", end="")
+                    print("Valid moves: ",len(validMoves), "To move: ", end="")
                     # print(move.getChessNotation())
                     if move in validMoves:
                         moveMade = True
                         gs.makeMove(move)
-                        print("White"*gs.whiteToMove + "Black"*(not gs.whiteToMove))
+                        # print("White"*gs.whiteToMove + "Black"*(not gs.whiteToMove))
                     sqSelected = () #reset user clicks
                     playerClicks = []
                     
