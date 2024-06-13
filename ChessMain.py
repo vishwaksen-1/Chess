@@ -59,7 +59,8 @@ def main():
                     playerClicks.append(sqSelected) #append for both 1st and 2nd clicks 
                 
                 if len(playerClicks) == 2: #after 2nd click
-                    move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
+                    move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board) 
+                    # print("Valid moves: ",len(validMoves), "To move: ", end="")
                     # print(move.getChessNotation())
                     if move in validMoves:
                         moveMade = True

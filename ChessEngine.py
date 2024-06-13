@@ -10,15 +10,26 @@ class GameState():
         
         "--" represents an empty space with no piece.
         """
+        # self.board = [
+        #     ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+        #     ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
+        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
+        #     ["--", "--", "--", "bQ", "wQ", "--", "--", "--"],
+        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
+        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
+        #     ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
+        #     ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
+        # ]
         self.board = [
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-            ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
+            
             ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "bB", "wB", "--", "--", "--"],
+            ["--", "--", "--", "bN", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
-            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["--", "--", "--", "--", "wN", "--", "--", "--"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
         ]
         self.moveFunctions = {'P': self.getPawnMoves, "R": self.getRookMoves, 'N': self.getKnightMoves, 'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K': self.getKingMoves}
         
@@ -146,6 +157,31 @@ class GameState():
     Get all the knight moves
     '''
     def getKnightMoves(self, r, c, moves):
+        x = 'b'
+        if self.whiteToMove:
+            x = 'w'
+        if r > 1: #up 2
+            if c > 0 and self.board[r-2][c-1][0] != x:
+                moves.append(Move((r,c),(r-2,c-1), self.board))
+            if c < 7 and self.board[r-2][c+1][0] != x:
+                moves.append(Move((r,c),(r-2,c+1), self.board))
+        if r > 0:#up 1
+            if c > 1 and self.board[r-1][c-2][0] != x:
+                moves.append(Move((r,c),(r-1,c-2), self.board))
+            if c < 6 and self.board[r-1][c+2][0] != x:
+                moves.append(Move((r,c),(r-1,c+2), self.board))
+        if r < 7:#down 1
+            if c > 1 and self.board[r+1][c-2][0] != x:
+                moves.append(Move((r,c),(r+1,c-2), self.board))
+            if c < 6 and self.board[r+1][c+2][0] != x:
+                moves.append(Move((r,c),(r+1,c+2), self.board))
+        if r < 6:#down 2
+            if c > 0 and self.board[r+2][c-1][0] != x:
+                moves.append(Move((r,c),(r+2,c-1), self.board))
+            if c < 7 and self.board[r+2][c+1][0] != x:
+                moves.append(Move((r,c),(r+2,c+1), self.board))
+            
+        
         pass
     
     '''
@@ -200,16 +236,17 @@ class GameState():
     Get all the queen moves
     '''
     def getQueenMoves(self, r, c, moves):
-        pass
+        self.getBishopMoves(r,c,moves)
+        self.getRookMoves(r,c,moves)
     
     '''
     Get all the king moves
     '''
     def getKingMoves(self, r, c, moves):
-        pass
-    
-    
-    
+        x = 'w'
+        if self.whiteToMove:
+            x = 'b'
+        
     
 class Move():
     # maps keys to values
