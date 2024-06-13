@@ -10,26 +10,15 @@ class GameState():
         
         "--" represents an empty space with no piece.
         """
-        # self.board = [
-        #     ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
-        #     ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
-        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
-        #     ["--", "--", "--", "bQ", "wQ", "--", "--", "--"],
-        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
-        #     ["--", "--", "--", "--", "--", "--", "--", "--"],
-        #     ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
-        #     ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
-        # ]
         self.board = [
-            
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "bN", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+            ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "wN", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
+            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
         ]
         self.moveFunctions = {'P': self.getPawnMoves, "R": self.getRookMoves, 'N': self.getKnightMoves, 'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K': self.getKingMoves}
         
@@ -243,9 +232,29 @@ class GameState():
     Get all the king moves
     '''
     def getKingMoves(self, r, c, moves):
-        x = 'w'
+        x = 'b'
         if self.whiteToMove:
-            x = 'b'
+            x = 'w'
+        if r > 0: #up
+            if self.board[r-1][c][0] != x:
+                moves.append(Move((r,c),(r-1,c), self.board))
+            if c > 0 and self.board[r-1][c-1][0] != x:
+                moves.append(Move((r,c),(r-1,c-1),self.board))
+            if c < 7 and self.board[r-1][c+1][0] != x:
+                moves.append(Move((r,c),(r-1,c+1), self.board))
+                
+        if r < 7:
+            if self.board[r+1][c][0] != x: 
+                moves.append(Move((r,c),(r+1,c), self.board))
+            if c > 0 and self.board[r+1][c-1][0] != x:
+                moves.append(Move((r,c),(r+1,c-1),self.board))
+            if c < 7 and self.board[r+1][c+1][0] != x:
+                moves.append(Move((r,c),(r+1,c+1), self.board))
+                
+        if c > 0 and self.board[r][c-1][0] != x:
+            moves.append(Move((r,c),(r,c-1), self.board))
+        if c < 7 and self.board[r][c+1][0] != x:
+            moves.append(Move((r,c),(r,c+1), self.board))
         
     
 class Move():
