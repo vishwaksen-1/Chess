@@ -65,11 +65,9 @@ def main():
                     if move in validMoves:
                         moveMade = True
                         gs.makeMove(move)
-                        # print("White"*gs.whiteToMove + "Black"*(not gs.whiteToMove))
-                        sqSelected = () #reset user clicks
-                        playerClicks = []
-                    else:
-                        playerClicks = [sqSelected]
+                        print("White"*gs.whiteToMove + "Black"*(not gs.whiteToMove))
+                    sqSelected = () #reset user clicks
+                    playerClicks = []
                     
             #key handlers
             elif e.type == p.KEYDOWN:
