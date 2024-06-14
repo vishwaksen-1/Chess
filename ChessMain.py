@@ -60,15 +60,17 @@ def main():
                 
                 if len(playerClicks) == 2: #after 2nd click
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board) 
-                    print("Valid moves: ",len(validMoves), "To move: ", end="")
-                    # print(move.getChessNotation())
-                    if move in validMoves:
-                        moveMade = True
-                        gs.makeMove(move)
-                        # print("White"*gs.whiteToMove + "Black"*(not gs.whiteToMove))
-                    sqSelected = () #reset user clicks
-                    playerClicks = []
-                    
+                    # print("Valid moves: ",len(validMoves), "To move: ", end="")
+                    print(move.getChessNotation())
+                    for i in range(len(validMoves)):
+                        if move == validMoves[i]:
+                            moveMade = True
+                            gs.makeMove(validMoves[i])
+                            # print("White"*gs.whiteToMove + "Black"*(not gs.whiteToMove))
+                            sqSelected = () #reset user clicks
+                            playerClicks = []
+                    if not moveMade:
+                        playerClicks = [sqSelected]
             #key handlers
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z: #Undo when 'z' is pressed
