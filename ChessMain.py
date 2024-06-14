@@ -31,7 +31,7 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     gs = ChessEngine.GameState()
-    validMoves = gs.getValidMoves() 
+    validMoves = gs.getValidMoves()
     moveMade = False #flag variable for when a move is made 
     
     loadImages() #Only do this once, before while loop
@@ -103,8 +103,6 @@ def drawBoard(screen):
         for c in range(DIMENSION):
             color = colors[((r+c)%2)]
             p.draw.rect(screen, color, p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
-            
-            
             
 """
 Draw the pieces on the board using the current GameState.board
