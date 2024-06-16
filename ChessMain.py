@@ -4,6 +4,7 @@ This is our main driver file. It will be responsible for handling user input and
 
 import pygame as p
 import ChessEngine
+import myBot
 
 p.init()
 WIDTH = HEIGHT = 512 #400 is another option
@@ -40,7 +41,10 @@ def main():
     playerClicks = [] #keep track og player clicks (two tuples: [(6, 4), (4, 4)])
     print("White"*gs.whiteToMove + "Black"*(not gs.whiteToMove))
     gameOver = False
+    playerOne = False #If a human is playing white, then this will be True. If an AI is playing then this will be False
+    playerTwo = False #Same as above but for black
     while running:
+        humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
                 print("Bye!")
@@ -48,7 +52,7 @@ def main():
             
             #mouse handlers
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver:
+                if not gameOver and humanTurn:
                     location = p.mouse.get_pos() #(x, y) location of the mouse
                     col = location[0]//SQ_SIZE
                     row = location[1]//SQ_SIZE
@@ -88,13 +92,26 @@ def main():
                     moveMade = False
                     animate = False
                     
+        #AI move finder
+        if not gameOver and not humanTurn:
+            AIMove = myBot.findBestMove(gs, validMoves)
+            if AIMove is None:
+                AIMove = myBot.findRandomMove(gs, validMoves)
+            print(AIMove.getChessNotation())
+            gs.makeMove(AIMove)
+            moveMade = True
+            animate = True
                     
         if moveMade:
             if animate:
                 animateMove(gs.moveLog[-1], screen, gs.board, clock)
             validMoves = gs.getValidMoves()
             moveMade = False
-                        
+            animate = False
+        # rev = False
+        # if not gs.whiteToMove:
+        #     rev = True
+            # gs.board.reverse()
         drawGameState(screen, gs, validMoves=validMoves, sqSelected=sqSelected)
         
         if gs.checkMate:
@@ -108,6 +125,9 @@ def main():
             drawEndGameText(screen, "Stalemate")
         clock.tick(MAX_FPS)
         p.display.flip()
+        # if rev:
+        #     gs.board.reverse()
+        #     rev = False
 
 '''
 Highlight the square selected and moves for piece selected
@@ -194,7 +214,7 @@ def drawEndGameText(screen, text):
     textObject = font.render(text, 0, p.Color('Black'))
     textLocation = p.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH/2 - textObject.get_width()/2, HEIGHT/2 - textObject.get_height()/2)
     screen.blit(textObject, textLocation)
-    textObject = font.render(text, 0, p.Color('Grey'))
+    textObject = font.render(text, 0, p.Color('yellow'))
     screen.blit(textObject, textLocation.move(2, 2))
 
 if __name__ == "__main__":

@@ -116,11 +116,11 @@ class GameState:
 
         # if pawn promotion, change piece
         if move.isPawnPromotion:
-            promotedPiece = (
-                input("Promote to Q, R, B or N: ").strip().upper()
-            )  # we can make this part of UI later
-            if promotedPiece not in "QRBN":
-                promotedPiece = "Q"
+            # promotedPiece = (
+            #     input("Promote to Q, R, B or N: ").strip().upper()
+            # )  # we can make this part of UI later
+            # if promotedPiece not in "QRBN":
+            promotedPiece = "Q"
             self.board[move.endRow][move.endCol] = move.pieceMoved[0] + promotedPiece
 
         # castle move
