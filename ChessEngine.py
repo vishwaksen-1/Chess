@@ -12,8 +12,8 @@ class GameState:
     whiteKingLocation: tuple(int) - the location of the white king
     blackKingLocation: tuple(int) - the location of the black king
     inCheck: bool - True if the current player is in check
-    checkMate: bool - True if the current player is in checkmate
-    staleMate: bool - True if the current player is in stalemate
+    checkMate: bool - True if the current player is in checkMate
+    staleMate: bool - True if the current player is in staleMate
     pins: list[tuple(int)] - a list of pinned pieces
     checks: list[tuple(int)] - a list of squares where the enemy is applying a check
     enpassantPossible: tuple(int) - the square where enpassant is possible
@@ -196,8 +196,8 @@ class GameState:
                         move.endCol + 1
                     ]
                     self.board[move.endRow][move.endCol + 1] = "--"
-            self.checkmate = False
-            self.stalemate = False
+            self.checkMate = False
+            self.staleMate = False
 
     def updateCastleRights(self, move):
         """
@@ -347,7 +347,7 @@ class GameState:
                     self.blackKingLocation[0], self.blackKingLocation[1], moves
                 )
 
-        if len(moves) == 0:  # either checkmate or stalemate
+        if len(moves) == 0:  # either checkMate or staleMate
             if self.inCheck:
                 self.checkMate = True
             else:
