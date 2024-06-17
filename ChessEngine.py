@@ -74,7 +74,7 @@ class GameState:
         # coordinated for the square where enpassant is possible
         self.enpassantPossibleLog = [self.enpassantPossible]
         # castle move
-
+        #is a capture move
         self.currentCastlingRights = CastleRights(True, True, True, True)
         self.castleRightsLog = [
             CastleRights(
@@ -196,6 +196,7 @@ class GameState:
                         move.endCol + 1
                     ]
                     self.board[move.endRow][move.endCol + 1] = "--"
+            
             self.checkMate = False
             self.staleMate = False
 
@@ -491,7 +492,7 @@ class GameState:
         piecePinned = False
         pinDirection = ()
         for i in range(len(self.pins) - 1, -1, -1):
-            if self.pins[i][0] == r and self.pins[i][c] == c:
+            if self.pins[i][0] == r and self.pins[i][1] == c:
                 piecePinned = True
                 pinDirection = (self.pins[i][2], self.pins[i][3])
                 if (
@@ -904,6 +905,8 @@ class Move:
             self.pieceCaptured = "wP" if self.pieceMoved == "bP" else "bP"
         # castle move
         self.isCastleMove = isCastleMove
+        self.isCaptureMove = self.pieceCaptured != "--"
+
 
     def __eq__(self, other):
         """
@@ -927,3 +930,35 @@ class Move:
         Function to get the rank and file of the square.
         """
         return self.colsToFiles[c] + self.rowsToRanks[r]
+    
+    def __str__(self) -> str:
+        '''
+        Overriding the string representation of the Move object.
+        '''
+        if self.isCastleMove:
+            return "O-O" if self.endCol == 6 else "O-O-O"
+        
+        endSquare = self.getRankFile(self.endRow, self.endCol)
+        #pawn moves
+        if self.pieceMoved[1] == "P":
+            if self.isCaptureMove:
+                if self.isEnpassantMove:
+                    return self.colsToFiles[self.startCol] + "x" + endSquare + "e.p."
+                return self.colsToFiles[self.startCol] + "x" + endSquare
+            else:
+                #pawn promotion
+                if self.isPawnPromotion:
+                    return endSquare + "=" + self.pieceMoved[0].upper()
+                else:
+                    return endSquare
+        #Two of the same type of piece moving to s asquare, Nbd2 if both knights can move to d2
+        
+        #add + for a check move and # for a checkmate move
+        
+        #piece moves
+        moveString = self.pieceMoved[1]
+        if self.isCaptureMove:
+            moveString += "x"
+        return moveString + endSquare
+
+        
