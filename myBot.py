@@ -3,6 +3,77 @@ import os
 from ChessEngine import GameState, Move
 
 pieceScore = {"K": 0, "Q": 9, "R": 5, "B": 3, "N": 3, "P": 1}
+
+knightScore = [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 2, 2, 2, 2, 2, 2, 1],
+    [1, 2, 3, 3, 3, 3, 2, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 2, 3, 3, 3, 3, 2, 1],
+    [1, 2, 2, 2, 2, 2, 2, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+]
+
+bishopScore = [
+    [4, 3, 2, 1, 1, 2, 3, 4],
+    [3, 4, 3, 2, 2, 3, 4, 3],
+    [2, 3, 4, 3, 3, 4, 3, 2],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [2, 3, 4, 3, 3, 4, 3, 2],
+    [3, 4, 3, 2, 2, 3, 4, 3],
+    [4, 3, 2, 1, 1, 2, 3, 4],
+]
+
+queenScore = [
+    [1, 1, 1, 3, 1, 1, 1, 1],
+    [1, 2, 3, 3, 3, 1, 1, 1],
+    [1, 4, 3, 3, 3, 4, 2, 1],
+    [1, 2, 3, 3, 3, 2, 2, 1],
+    [1, 2, 3, 3, 3, 2, 2, 1],
+    [1, 4, 3, 3, 3, 4, 2, 1],
+    [1, 1, 2, 3, 3, 1, 1, 1],
+    [1, 1, 1, 3, 1, 1, 1, 1],
+]
+
+#probably better try to place rooks on open files, or on same sile as other rook/Queen
+
+rookScore = [
+    [4, 3, 4, 4, 4, 4, 3, 4],
+    [4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 2, 3, 3, 2, 1, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 1, 2, 3, 3, 2, 1, 1],
+    [4, 4, 4, 4, 4, 4, 4, 4],
+    [4, 3, 4, 4, 4, 4, 3, 4],
+]
+
+whitePawnScore = [
+    [8, 8, 8, 8, 8, 8, 8, 8],
+    [8, 8, 8, 8, 8, 8, 8, 8],
+    [5, 6, 6, 7, 7, 6, 6, 5],
+    [2, 3, 3, 5, 5, 3, 3, 2],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 1, 2, 3, 3, 2, 1, 1],
+    [1, 1, 1, 0, 0, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+]
+
+blackPawnScore = [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 0, 0, 1, 1, 1],
+    [1, 1, 2, 3, 3, 2, 1, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [2, 3, 3, 5, 5, 3, 3, 2],
+    [5, 6, 6, 7, 7, 6, 6, 5],
+    [8, 8, 8, 8, 8, 8, 8, 8],
+    [8, 8, 8, 8, 8, 8, 8, 8],    
+]
+
+piecePositionScores = {'N': knightScore, 'B': bishopScore, 'Q': queenScore, 'R': rookScore, 'wP': whitePawnScore, 'bP': blackPawnScore}
+
 CHECKMATE = 1000
 STALEMATE = 0
 DEPTH = 3
@@ -51,21 +122,19 @@ Find the best move based on material alone
 '''
 def findBestMoveGKM(gs, validMoves):
     return greedyKillerMachine(gs, validMoves)
-    pass
 
 '''
 Helper method to make the first recursive call
 '''
-def findBestMove(gs, validMoves):
+def findBestMove(gs, validMoves, returnQueue):
     global nextMove, counter
     nextMove = None
     counter = 0
-    # dL = [1]*3 + [2]*7
-    # DEPTH = random.choice(dL)
     # findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1)
+    random.shuffle(validMoves)
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1, -CHECKMATE, CHECKMATE)
     print(counter)
-    return nextMove
+    returnQueue.put(nextMove)
 
 def findMoveMinMax(gs, validMoves, depth, whiteToMove):
     global nextMove
@@ -137,6 +206,7 @@ def findMoveNegaMaxAlphaBeta(gs: GameState, validMoves: list[Move], depth: int, 
             maxScore = score
             if depth == DEPTH:
                 nextMove = move
+                print("--",move, score)
         gs.undoMove()
         if maxScore > alpha: #pruning happens
             alpha = maxScore
@@ -158,12 +228,21 @@ def scoreBoard(gs: GameState):
         return STALEMATE
     
     score = 0
-    for row in gs.board:
-        for square in row:
-            if square[0] == 'w':
-                score += pieceScore[square[1]]
-            elif square[0] == 'b':
-                score -= pieceScore[square[1]]
+    for row in range(len(gs.board)): 
+        for col in range(len(gs.board[row])):
+            square = gs.board[row][col]
+            if square != '--':
+                #score it positionally
+                piecePositionScore = 0
+                if square[1] != 'K':
+                    if square[1] == 'P':
+                        piecePositionScore = piecePositionScores[square][row][col]
+                    else:
+                        piecePositionScore = piecePositionScores[square[1]][row][col]
+                if square[0] == 'w':
+                    score += pieceScore[square[1]] + piecePositionScore*0.1
+                elif square[0] == 'b':
+                    score -= pieceScore[square[1]] - piecePositionScore*0.1
     return score
 
 '''

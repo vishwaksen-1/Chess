@@ -5,6 +5,7 @@ This is our main driver file. It will be responsible for handling user input and
 import pygame as p
 import ChessEngine
 import myBot
+from multiprocessing import Process, Queue
 
 p.init()
 BOARD_WIDTH = BOARD_HEIGHT = 512 #400 is another option
@@ -44,8 +45,11 @@ def main():
     playerClicks = [] #keep track og player clicks (two tuples: [(6, 4), (4, 4)])
     print("White"*gs.whiteToMove + "Black"*(not gs.whiteToMove))
     gameOver = False
-    playerOne = False #If a human is playing white, then this will be True. If an AI is playing then this will be False
+    playerOne = True #If a human is playing white, then this will be True. If an AI is playing then this will be False
     playerTwo = False #Same as above but for black
+    AIThinking = False #flag variable for when AI is thinking
+    moveFinderProcess = None #A variable to store the move finding process
+    moveUndone = False
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
@@ -56,7 +60,7 @@ def main():
             
             #mouse handlers
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver and humanTurn:
+                if not gameOver:
                     location = p.mouse.get_pos() #(x, y) location of the mouse
                     col = location[0]//SQ_SIZE
                     row = location[1]//SQ_SIZE
@@ -69,7 +73,7 @@ def main():
                         sqSelected = (row, col)
                         playerClicks.append(sqSelected) #append for both 1st and 2nd clicks 
                     
-                    if len(playerClicks) == 2: #after 2nd click
+                    if len(playerClicks) == 2 and humanTurn: #after 2nd click
                         move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board) 
                         # print("Valid moves: ",len(validMoves), "To move: ", end="")
                         print(move.getChessNotation())
@@ -88,10 +92,16 @@ def main():
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z: #Undo when 'z' is pressed
                     gs.undoMove()
-                    # gs.undoMove()
-                    moveMade = False
+                    sqSelected = ()
+                    playerClicks = []
+                    moveMade = True
                     animate = False
                     gameOver = False
+                    if AIThinking:
+                        moveFinderProcess.terminate()
+                        AIThinking = False
+                        moveUndone = True
+                        
                 if e.key == p.K_r: #Reset the board when 'r' is pressed
                     gs = ChessEngine.GameState()
                     validMoves = gs.getValidMoves()
@@ -100,19 +110,32 @@ def main():
                     moveMade = False
                     animate = False
                     gameOver = False
+                    if AIThinking:
+                        moveFinderProcess.terminate()
+                        AIThinking = False
+                        moveUndone = True
+                    moveUndone = True
                     
         #AI move finder
-        if not gameOver and not humanTurn:
-            AIMove = myBot.findBestMove(gs, validMoves)
-            if AIMove is None:
-                AIMove = myBot.findRandomMove(gs, validMoves)
-            # if AIMove != 0:
-            print(AIMove.getChessNotation())
-            gs.makeMove(AIMove)
-            moveMade = True
-            animate = True
-            # else:
-            #     chief_undo = True
+        if not gameOver and not humanTurn and not moveUndone:
+            if not AIThinking:
+                AIThinking = True
+                print('thinking. . .')
+                returnQueue = Queue() #used to pass data between threads
+                moveFinderProcess = Process(target=myBot.findBestMove, args=(gs, validMoves, returnQueue))
+                moveFinderProcess.start() #call findBestMove(gs, validMoves)
+                # AIMove = myBot.findBestMove(gs, validMoves)
+                
+            if not moveFinderProcess.is_alive():
+                print('Done thinking')
+                AIMove = returnQueue.get()
+                if AIMove is None:
+                    AIMove = myBot.findRandomMove(gs, validMoves)
+                gs.makeMove(AIMove)
+                moveMade = True
+                animate = True
+                AIThinking = False
+
                     
         if moveMade:
             if animate:
@@ -120,6 +143,8 @@ def main():
             validMoves = gs.getValidMoves()
             moveMade = False
             animate = False
+            moveUndone = False
+            
         drawGameState(screen, gs, validMoves, sqSelected, moveLogFont)
         
         if gs.checkMate or gs.staleMate:
