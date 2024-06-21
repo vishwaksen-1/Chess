@@ -8,6 +8,7 @@ import myBot
 from multiprocessing import Process, Queue
 
 p.init()
+
 BOARD_WIDTH = BOARD_HEIGHT = 512 #400 is another option
 MOVE_LOG_PANEL_WIDTH = 300
 MOVE_LOG_PANEL_HEIGHT = BOARD_HEIGHT    
@@ -32,6 +33,8 @@ The main driver for code. This will handle user input and updating the graphics.
 def main():
     p.init()
     screen = p.display.set_mode((BOARD_WIDTH + MOVE_LOG_PANEL_WIDTH, BOARD_HEIGHT))
+    p.display.set_caption("Chessio")
+    p.display.set_icon(p.image.load("icon.png"))
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     moveLogFont = p.font.SysFont("Arial", 14, False, False)
