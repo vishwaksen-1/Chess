@@ -1,36 +1,55 @@
 class GameState:
     """
-    A class to represent the current state of the game.
-    It includes all the information about the current state of the game.
+    Represents the current state of the game.
 
-    Attributes:
-    -----------
-    board: list[list[str]] - a 2d list to represent the board
-    moveFunctions: dict - a dictionary to map piece types to their move functions
-    whiteToMove: bool - True if white is to move, False if black is to move
-    moveLog: list[Move] - a list to store the moves made in the game
-    whiteKingLocation: tuple(int) - the location of the white king
-    blackKingLocation: tuple(int) - the location of the black king
-    inCheck: bool - True if the current player is in check
-    checkMate: bool - True if the current player is in checkMate
-    staleMate: bool - True if the current player is in staleMate
-    pins: list[tuple(int)] - a list of pinned pieces
-    checks: list[tuple(int)] - a list of squares where the enemy is applying a check
-    enpassantPossible: tuple(int) - the square where enpassant is possible
-    enpassantPossibleLog: list[tuple(int)] - a list to store the enpassant possible squares
-    currentCastlingRights: CastleRights - the current castling rights
+    Attributes
+    ----------
+    board : list[list[str]]
+        A 2d list to represent the board.
+    moveFunctions : dict
+        A dictionary to map piece types to their move functions.
+    whiteToMove : bool
+        True if white is to move, False if black is to move.
+    moveLog : list[Move]
+        A list to store the moves made in the game.
+    whiteKingLocation : tuple[int]
+        The location of the white king.
+    blackKingLocation : tuple[int]
+        The location of the black king.
+    inCheck : bool
+        True if the current player is in check.
+    checkMate : bool
+        True if the current player is in checkMate.
+    staleMate : bool
+        True if the current player is in staleMate.
+    pins : list[tuple[int]]
+        A list of pinned pieces.
+    checks : list[tuple[int]]
+        A list of squares where the enemy is applying a check.
+    enpassantPossible : tuple[int]
+        The square where enpassant is possible.
+    enpassantPossibleLog : list[tuple[int]]
+        A list to store the enpassant possible squares.
+    currentCastlingRights : CastleRights
+        The current castling rights.
     """
 
     def __init__(self):
         """
-        The board is an 8x8 2d list, each element of the list has 2 characters.
+        The chess board is represented as an 8x8 two-dimensional list.
+        
+        Each element in the list consists of a two-character string:
+        
+        - The first character indicates the color of the piece: 'b' for black or 'w' for white.
+        - The second character denotes the type of the piece:
+            - 'K' for King
+            - 'Q' for Queen
+            - 'R' for Rook
+            - 'B' for Bishop
+            - 'N' for Knight
+            - 'P' for Pawn
 
-        The first character represents the color of the piece, 'b' or 'w'
-
-        The second character represents the type of the piece,
-        'K', 'Q', 'R', 'B', 'N', 'P'
-
-        "--" represents an empty space with no piece.
+        An element with "--" represents an empty square with no piece.
         """
         self.board = [
             ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
@@ -85,13 +104,23 @@ class GameState:
             )
         ]
 
-    def makeMove(self, move):
+    def make_move(self, move) -> None:
         """
-        Function to make a move given a move object.
+        Make a move given a Move object.
 
-        Parameters:
-        -----------
-        move: Move
+        This function updates the board to reflect the move, updates the move log,
+        and swaps the current player. It also updates the king's location if the
+        move is a king move, and updates the en passant possible square if the move
+        is a pawn move.
+
+        Parameters
+        ----------
+        move : Move
+            The move to be made.
+
+        Returns
+        -------
+        None
         """
         self.board[move.startRow][move.startCol] = "--"
         self.board[move.endRow][move.endCol] = move.pieceMoved
@@ -151,7 +180,8 @@ class GameState:
 
     def undoMove(self):
         """
-        Function to undo the last move made.
+        Reverts the board to the state before the move was made, and resets the
+        move log.
         """
         if len(self.moveLog) != 0:
             move = self.moveLog.pop()
@@ -202,11 +232,15 @@ class GameState:
 
     def updateCastleRights(self, move):
         """
-        Function to update the castling rights given the move made.
+        Updates the castling rights based on the given move.
 
-        Parameters:
-        -----------
-        move: Move
+        This method modifies the current castling rights if the move involves
+        a king or a rook, as these moves impact the ability to castle.
+
+        Parameters
+        ----------
+        move : Move
+            The move that was made, affecting the castling rights.
         """
         if move.pieceCaptured == "wR":
             if move.endCol == 0:  # left rook
@@ -238,28 +272,31 @@ class GameState:
                 elif move.startCol == 7:  # right rook
                     self.currentCastlingRights.bks = False
 
-    def squareUnderAttack(self, r: int, c: int):
+    def squareUnderAttack(self, r: int, c: int) -> bool:
         """
-        Function to determine if the enemy can attack the square.
-        It does this by checking all the possible moves of the enemy
-        and seeing if any of them can attack the square.
+        Determines if a square is under attack by the opponent.
 
-        Parameters:
-        -----------
-        r: int - row number of the square
-        c: int - column number of the square
+        The function temporarily switches the turn to the opponent
+        to calculate all possible moves they can make. It then checks
+        if any of these moves can reach the specified square.
 
-        Returns:
-        --------
-        bool: True if the enemy can attack the square, False otherwise
+        Parameters
+        ----------
+        r : int
+            The row index of the square.
+        c : int
+            The column index of the square.
+
+        Returns
+        -------
+        bool
+            True if the square is under attack by the opponent, 
+            False otherwise.
         """
-        self.whiteToMove = not self.whiteToMove  # switch to opponents turn
+        self.whiteToMove = not self.whiteToMove
         oppMoves = self.getAllPossibleMoves()
-        self.whiteToMove = not self.whiteToMove  # switch turns back
-        for move in oppMoves:
-            if move.endRow == r and move.endCol == c:  # square is under attack
-                return True
-        return False
+        self.whiteToMove = not self.whiteToMove
+        return any(move.endRow == r and move.endCol == c for move in oppMoves)
 
     def inCheck(self):
         """
