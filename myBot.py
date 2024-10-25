@@ -76,7 +76,7 @@ piecePositionScores = {'N': knightScore, 'B': bishopScore, 'Q': queenScore, 'R':
 
 CHECKMATE = 1000
 STALEMATE = 0
-DEPTH = 3
+DEPTH = 4
 
 '''
 Picks and returns a random move
